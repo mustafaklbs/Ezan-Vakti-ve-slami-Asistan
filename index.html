@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>İslami Asistan: Ezan, İmsakiye, Kıble</title>
+
+    <style>
+        /* --- GENEL TASARIM --- */
+        body { 
+            margin: 0; padding: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; 
+            background-color: #0b0f19; color: #ffffff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-image: linear-gradient(rgba(11, 15, 25, 0.88), rgba(11, 15, 25, 0.88)), url('./assets/images/cami1.jpg');
+            background-size: cover; 
+            background-position: center center; 
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        
+        .ust-bilgi-cubugu {
+            width: 100%; background: rgba(15, 22, 36, 0.95); border-bottom: 1px solid #232f46;
+            padding: 10px 15px; display: flex; justify-content: space-between; align-items: center;
+            box-sizing: border-box; font-size: 0.85rem; color: #cbd5e1; z-index: 200; backdrop-filter: blur(5px);
+        }
+
+        .bilgi-sol, .bilgi-sag { display: flex; flex-direction: column; gap: 4px; }
+        .bilgi-sag { text-align: right; }
+        .buyuk-saat { font-size: 1.4rem; font-weight: bold; color: #4facfe; font-family: 'Courier New', Courier, monospace; letter-spacing: 1px;}
+        .hava-durumu { font-size: 1.1rem; color: #ffb300; font-weight: bold; display: flex; align-items: center; gap: 5px; justify-content: flex-end;}
+        .vurgulu-tarih { color: #2ed573; font-style: italic; }
+
+        .container { width: 95%; max-width: 480px; background: linear-gradient(145deg, rgba(22, 31, 50, 0.95), rgba(15, 22, 36, 0.95)); border: 1px solid #232f46; border-radius: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8); overflow: hidden; margin: 15px 0 20px 0; padding-bottom: 20px; backdrop-filter: blur(10px); }
+
+        .menu-bar { display: flex; background-color: rgba(15, 22, 36, 0.9); border-bottom: 2px solid #232f46; position: sticky; top: 0; z-index: 100; overflow-x: auto; white-space: nowrap; scroll-behavior: smooth;}
+        .sekme-btn { flex: 0 0 auto; min-width: 80px; background: transparent; border: none; color: #a0aec0; padding: 15px 10px; font-size: 0.95rem; font-weight: bold; cursor: pointer; transition: all 0.3s ease;}
+        .sekme-btn:hover { color: #ffffff; background-color: rgba(79, 172, 254, 0.1); }
+        .sekme-btn.aktif { color: #4facfe; border-bottom: 3px solid #4facfe; background-color: rgba(79, 172, 254, 0.05); }
+
+        .icerik { padding: 20px 15px; text-align: center; display: none; }
+        .icerik.aktif { display: block; animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        h2 { color: #4facfe; margin-top: 0; margin-bottom: 15px; text-shadow: 0 0 10px rgba(79, 172, 254, 0.2); }
+
+        .konum-karti { background: rgba(79, 172, 254, 0.08); border: 1px solid rgba(79, 172, 254, 0.2); border-radius: 12px; padding: 10px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 8px;}
+        .konum-karti span { font-size: 1rem; color: #00f2fe; font-weight: bold; }
+
+        .sayac-karti { background: linear-gradient(145deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.8)); border: 1px solid #334155; border-radius: 15px; padding: 20px 15px; margin-bottom: 20px; box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4); position: relative; overflow: hidden; }
+        .sayac-karti::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #4facfe, #00f2fe); }
+        .vakit-durumu { font-size: 1.2rem; color: #e2e8f0; margin-bottom: 10px; }
+        .vakit-durumu strong { color: #2ed573; font-size: 1.4rem; text-transform: uppercase; letter-spacing: 1px; }
+        .kalan-metin { font-size: 0.95rem; color: #94a3b8; margin-bottom: 5px; margin-top: 10px; border-top: 1px solid #334155; padding-top: 10px;}
+        .canli-sayac { font-size: 2.8rem; font-weight: bold; color: #ffb300; font-family: 'Courier New', Courier, monospace; text-shadow: 0 0 15px rgba(255, 179, 0, 0.4); line-height: 1; }
+
+        .vakit-listesi { list-style: none; padding: 0; margin: 0 0 25px 0; }
+        .vakit-item { display: flex; align-items: center; justify-content: space-between; background: rgba(26, 36, 54, 0.8); margin-bottom: 8px; padding: 12px 15px; border-radius: 10px; font-size: 1.1rem; border-left: 4px solid #4facfe; transition: all 0.3s ease; }
+        .vakit-isim { color: #a0aec0; flex: 1; text-align: left; padding-left: 5px;}
+        .vakit-saat { font-weight: bold; color: #ffffff; flex: 1; text-align: center;}
+        .vakit-alarm-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #ffb300; opacity: 0.7; transition: 0.2s; padding: 5px; flex: 0.5; text-align: right;}
+        .vakit-alarm-btn:hover { opacity: 1; transform: scale(1.1); }
+        .vakit-item.aktif-vakit { background: rgba(46, 213, 115, 0.15); border-left: 4px solid #2ed573; transform: scale(1.03); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); }
+        .vakit-item.aktif-vakit .vakit-isim, .vakit-item.aktif-vakit .vakit-saat { color: #2ed573; font-weight: bold;}
+
+        /* --- İSLAMİ İÇERİK --- */
+        .icerik-alani { text-align: left; background: rgba(18, 26, 41, 0.8); border: 1px solid #232f46; border-radius: 15px; padding: 15px; margin-top: 10px; }
+        .icerik-baslik { font-size: 0.85rem; color: #4facfe; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 15px; text-align: center; border-bottom: 1px solid #232f46; padding-bottom: 10px;}
+        .kutu { background: rgba(255,255,255,0.02); border-radius: 10px; padding: 15px; margin-bottom: 15px; border-left: 3px solid; }
+        .kutu-ayet { border-color: #2ed573; } .kutu-hadis { border-color: #ffb300; } .kutu-hikaye { border-color: #4facfe; }
+        .kutu h3 { margin: 0 0 8px 0; font-size: 1rem; color: #e2e8f0; display: flex; align-items: center; gap: 8px;}
+        .arapca-metin { font-size: 1.4rem; font-family: 'Times New Roman', Times, serif; color: #fff; text-align: right; margin-bottom: 10px; line-height: 1.6; direction: rtl; }
+        .turkce-metin, .hikaye-metin { font-size: 0.95rem; color: #cbd5e1; line-height: 1.5; font-style: italic; text-align: justify;}
+        .kaynak-metin { font-size: 0.75rem; color: #64748b; text-align: right; margin-top: 8px; font-style: normal; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 5px;}
+
+        /* Dini Günler */
+        .kutu-dinigun { border-color: #ff4757; background: linear-gradient(45deg, rgba(255, 71, 87, 0.15), transparent); display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: 0.3s;}
+        .kutu-dinigun:hover { background: linear-gradient(45deg, rgba(255, 71, 87, 0.25), transparent); transform: scale(1.02); }
+        .dinigun-isim { font-weight: bold; color: #e2e8f0; font-size: 1.1rem;}
+        .dinigun-sayac { background: #ff4757; color: white; padding: 8px 12px; border-radius: 8px; font-weight: bold; font-size: 1.2rem; box-shadow: 0 4px 10px rgba(255, 71, 87, 0.3); text-align: center;}
+        .dinigun-sayac small { display: block; font-size: 0.7rem; font-weight: normal; margin-top: -2px;}
+
+        /* Modal Stilleri */
+        .modal-overlay { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px); justify-content: center; align-items: center;}
+        .modal-icerik { background-color: #161f32; padding: 25px; border-radius: 15px; border: 1px solid #4facfe; width: 85%; max-width: 400px; text-align: center; position: relative; max-height: 80vh; overflow-y: auto;}
+        .modal-kapat { position: absolute; top: 10px; right: 15px; color: #a0aec0; font-size: 24px; font-weight: bold; cursor: pointer; }
+        .modal-baslik { color: #ff4757; margin-top: 0; font-size: 1.4rem; margin-bottom: 15px;}
+        .modal-metin { color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin-bottom: 20px; text-align: left;}
+        .modal-btn { display: inline-block; background: linear-gradient(45deg, #2ed573, #1db954); color: white; text-decoration: none; padding: 10px 20px; border-radius: 50px; font-weight: bold; font-size: 0.9rem;}
+
+        /* İmsakiye & Alarm Ekranı Stilleri */
+        .imsakiye-konteyner { max-height: 500px; overflow-y: auto; padding-right: 5px; }
+        .imsakiye-kart { background: rgba(26, 36, 54, 0.8); border-radius: 10px; margin-bottom: 15px; border: 1px solid #334155; overflow: hidden; text-align: left;}
+        .imsakiye-kart.gecmis { opacity: 0.6; }
+        .imsakiye-kart.bugun { border: 2px solid #2ed573; box-shadow: 0 0 15px rgba(46, 213, 115, 0.2); background: rgba(26, 36, 54, 1); opacity: 1;}
+        .imsakiye-baslik { background: rgba(79, 172, 254, 0.1); padding: 10px 15px; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center;}
+        .imsakiye-tarih { color: #ffffff; font-weight: bold; font-size: 0.95rem;}
+        .imsakiye-hicri { color: #4facfe; font-size: 0.85rem; font-style: italic;}
+        .imsakiye-vakitler { display: flex; padding: 10px; justify-content: space-between; text-align: center;}
+        .ims-v { display: flex; flex-direction: column; gap: 4px; }
+        .ims-isim { font-size: 0.75rem; color: #94a3b8; text-transform: uppercase;}
+        .ims-saat { font-size: 0.95rem; color: #e2e8f0; font-weight: bold;}
+        .bugun .ims-saat { color: #2ed573; }
+
+        .alarm-form { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 10px; border: 1px solid #334155; text-align: left; margin-bottom: 20px;}
+        .form-grup { margin-bottom: 15px; }
+        .form-grup label { display: block; margin-bottom: 5px; color: #a0aec0; font-size: 0.9rem;}
+        .form-grup select, .form-grup input { width: 100%; padding: 10px; background: #0b0f19; border: 1px solid #4facfe; color: white; border-radius: 5px; font-size: 1rem; box-sizing: border-box;}
+        
+        .buton-grubu { display: flex; gap: 10px; }
+        .btn { background: linear-gradient(45deg, #4facfe, #00f2fe); border: none; color: white; padding: 12px 20px; font-size: 1rem; font-weight: bold; border-radius: 5px; cursor: pointer; flex: 1; transition: all 0.2s ease; box-shadow: 0 5px 15px rgba(0, 242, 254, 0.3);} 
+        .btn-ikincil { background: linear-gradient(45deg, #94a3b8, #64748b); box-shadow: 0 5px 15px rgba(100, 116, 139, 0.3); transition: all 0.2s ease;}
+        .btn:active { transform: translateY(2px); } 
+
+        .aktif-alarmlar { text-align: left; }
+        .alarm-kutu { background: rgba(46, 213, 115, 0.1); border-left: 3px solid #2ed573; padding: 10px 15px; margin-bottom: 10px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center;}
+        .alarm-kutu-bilgi { display: flex; flex-direction: column; }
+        .alarm-vakit { font-weight: bold; color: #2ed573; }
+        .alarm-detay { font-size: 0.8rem; color: #94a3b8; }
+        .alarm-sil { background: none; border: none; color: #ff4757; font-size: 1.2rem; cursor: pointer;}
+
+        /* Pusula Sınıfları */
+        .pusula-uyari { background: rgba(255, 179, 0, 0.1); border: 1px solid rgba(255, 179, 0, 0.3); padding: 15px; border-radius: 10px; color: #ffb300; font-size: 0.9rem; margin-bottom: 20px; line-height: 1.5; }
+        .pusula-ios-hata { background: rgba(255, 71, 87, 0.1); border: 1px solid #ff4757; color: #ff4757; padding: 15px; border-radius: 10px; font-size: 0.9rem; margin-top: 15px; display: none; text-align: left; }
+        .pusula-container { position: relative; width: 260px; height: 260px; margin: 40px auto 20px auto; }
+        .telefon-yonu { position: absolute; top: -30px; left: 50%; transform: translateX(-50%); font-size: 30px; color: #fff; z-index: 10; text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+        .pusula-dis { width: 100%; height: 100%; border-radius: 50%; border: 4px solid #232f46; position: relative; box-shadow: 0 0 40px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(79, 172, 254, 0.2); background: radial-gradient(circle, #1a2436 0%, #0b0f19 100%); overflow: hidden; }
+        .pusula-ic { width: 100%; height: 100%; position: absolute; top: 0; left: 0; transition: transform 0.1s linear; }
+        .yon-harf { position: absolute; font-weight: bold; color: #64748b; } .kuzey-ok { top: 10px; left: 50%; transform: translateX(-50%); color: #ff4757; font-size: 24px; } .guney-ok { bottom: 10px; left: 50%; transform: translateX(-50%); font-size: 18px; } .dogu-ok { top: 50%; right: 15px; transform: translateY(-50%); font-size: 18px; } .bati-ok { top: 50%; left: 15px; transform: translateY(-50%); font-size: 18px; }
+        .kible-ok-konteyner { position: absolute; top: 0; left: 50%; width: 2px; height: 100%; transform: translateX(-50%); } .kible-simgesi { position: absolute; top: 20px; left: -22px; font-size: 45px; filter: drop-shadow(0 0 10px #ffb300); }
+        .pusula-cizgi { position: absolute; top: 0; left: 50%; width: 1px; height: 100%; background: rgba(255,255,255,0.05); transform: translateX(-50%); } .c1 { transform: translateX(-50%) rotate(45deg); } .c2 { transform: translateX(-50%) rotate(90deg); } .c3 { transform: translateX(-50%) rotate(135deg); }
+        .yon-talimati { font-size: 2rem; font-weight: bold; color: #ffb300; margin-top: 20px; min-height: 50px; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.3s; } .yon-talimati.kible-dogru { color: #2ed573; text-shadow: 0 0 20px rgba(46, 213, 115, 0.6); transform: scale(1.1); } .durum-bilgisi { color: #a0aec0; font-size: 0.9rem; margin-top: 10px; }
+        
+        .yukleniyor-kutusu { padding: 40px; color: #4facfe; font-weight: bold; font-size: 1.2rem; display: flex; flex-direction: column; gap: 15px; align-items: center;}
+        .spinner { border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid #4facfe; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        ::-webkit-scrollbar { width: 6px; height: 6px;} ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: #4facfe; border-radius: 10px; }
+
+        /* Toast Bildirimi */
+        #toastMesaj {
+            visibility: hidden; min-width: 250px; background-color: #ff4757; color: #fff;
+            text-align: center; border-radius: 10px; padding: 16px; position: fixed;
+            z-index: 1000; left: 50%; transform: translateX(-50%); top: 30px;
+            font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.5s, top 0.5s;
+        }
+        #toastMesaj.goster { visibility: visible; opacity: 1; top: 60px; }
+
+        /* İbadet Takipçisi */
+        .takip-karti { text-align: left; background: rgba(26, 36, 54, 0.8); border: 1px solid #334155; border-radius: 12px; padding: 15px; margin-bottom: 15px; }
+        .takip-baslik { font-size: 1.1rem; color: #4facfe; border-bottom: 1px solid #334155; padding-bottom: 8px; margin-bottom: 12px; font-weight: bold; }
+        .ibadet-liste { list-style: none; padding: 0; margin: 0; }
+        .ibadet-item { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 1.05rem; color: #e2e8f0; }
+        .ibadet-item input[type="checkbox"] { width: 22px; height: 22px; accent-color: #2ed573; cursor: pointer; flex-shrink: 0;}
+        .istatistik-kutu { display: flex; justify-content: space-between; background: rgba(46, 213, 115, 0.1); border: 1px dashed #2ed573; padding: 10px; border-radius: 8px; color: #2ed573; font-weight: bold; cursor: pointer; transition: 0.2s;}
+        .istatistik-kutu:hover { background: rgba(46, 213, 115, 0.2); }
+        .not-alani { width: 100%; height: 80px; background: rgba(0,0,0,0.3); border: 1px solid #334155; color: white; padding: 10px; border-radius: 8px; margin-top: 10px; font-family: inherit; resize: none; box-sizing: border-box;}
+
+        .gecmis-gun-karti { background: rgba(0,0,0,0.2); padding: 10px; border-left: 3px solid #4facfe; margin-bottom: 10px; border-radius: 5px; text-align: left;}
+        .gecmis-gun-tarih { color: #4facfe; font-weight: bold; margin-bottom: 5px; font-size: 0.95rem;}
+        .gecmis-gun-detay { font-size: 0.85rem; color: #cbd5e1; }
+
+        .cuz-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 15px; }
+        .cuz-kutu { background: #0b0f19; border: 1px solid #334155; border-radius: 8px; padding: 10px 5px; text-align: center; cursor: pointer; transition: 0.2s; font-size: 0.9rem; color: #a0aec0;}
+        .cuz-kutu.alindi { background: rgba(46, 213, 115, 0.2); border-color: #2ed573; color: #2ed573; font-weight: bold;}
+        .cuz-kutu:not(.alindi):hover { background: #4facfe; color: white; border-color: #4facfe;}
+
+        /* Ayarlar */
+        .ayar-satir { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); padding: 15px; border-radius: 10px; border: 1px solid #334155; margin-bottom: 15px; text-align: left; flex-wrap: wrap; gap: 10px;}
+        .ayar-bilgi { flex: 1; min-width: 200px; }
+        .ayar-bilgi h4 { margin: 0 0 5px 0; color: #e2e8f0; font-size: 1.1rem; }
+        .ayar-bilgi p { margin: 0; font-size: 0.8rem; color: #94a3b8; }
+        .toggle-switch { position: relative; width: 50px; height: 26px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #334155; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #2ed573; }
+        input:checked + .slider:before { transform: translateX(24px); }
+        
+        .admin-kutu { border-top: 1px dashed #ff4757; padding-top: 15px; margin-top: 15px; }
+
+        #adminLoglar { background: #000; color: #0f0; padding: 10px; font-family: monospace; font-size: 0.8rem; height: 250px; overflow-y: auto; text-align: left; margin-top: 10px; border-radius: 5px;}
+    </style>
+</head>
+<body>
+
+    <div id="toastMesaj">Bildirim Merkezi</div>
+
+    <div class="ust-bilgi-cubugu">
+        <div class="bilgi-sol">
+            <div class="buyuk-saat" id="widgetSaat">00:00:00</div>
+            <div id="widgetMiladi">--</div>
+            <div class="vurgulu-tarih" id="widgetHicri">--</div>
+        </div>
+        <div class="bilgi-sag">
+            <div class="hava-durumu" id="widgetHava"><div class="spinner" style="width:15px;height:15px;border-width:2px;"></div></div>
+            <div id="widgetKonum">Konum Aranıyor...</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="menu-bar">
+            <button id="btnEzan" class="sekme-btn aktif" onclick="sekmeDegistir('ezan')">Vakitler</button>
+            <button id="btnIbadet" class="sekme-btn" onclick="sekmeDegistir('ibadet')">İbadet</button>
+            <button id="btnSosyal" class="sekme-btn" onclick="sekmeDegistir('sosyal')">Topluluk</button>
+            <button id="btnImsakiye" class="sekme-btn" onclick="sekmeDegistir('imsakiye')">İmsakiye</button>
+            <button id="btnKible" class="sekme-btn" onclick="sekmeDegistir('kible')">Kıble</button>
+            <button id="btnAlarm" class="sekme-btn" onclick="sekmeDegistir('alarm')">Alarm</button>
+            <button id="btnAyarlar" class="sekme-btn" onclick="sekmeDegistir('ayarlar')">Ayarlar</button>
+            <button id="btnYonetici" class="sekme-btn" onclick="sekmeDegistir('yonetici')" style="display:none; color:#ff4757;">Yönetici Paneli</button>
+        </div>
+
+        <div id="bolumEzan" class="icerik aktif">
+            <div class="konum-karti" id="anaKonumKarti" style="display:none;">
+                📍 <span id="anaKonumMetni">Konum Bulunamadı</span>
+            </div>
+
+            <div class="sayac-karti">
+                <div class="vakit-durumu">İçinde Bulunulan Vakit: <br><strong id="suankiVakitMetni">Hesaplanıyor...</strong></div>
+                <div class="canli-sayac" id="ezanCanliSayac">--:--:--</div>
+                <div class="kalan-metin" id="kalanVakitMetni">Lütfen bekleyin...</div>
+            </div>
+
+            <ul class="vakit-listesi" id="vakitListesi">
+                <div class="yukleniyor-kutusu"><div class="spinner"></div>Vakitler Hesaplanıyor...</div>
+            </ul>
+
+            <div class="icerik-alani">
+                <div class="kutu kutu-dinigun" id="diniGunKutusu" onclick="modalGoster('diniGun')">
+                    <div class="dinigun-isim" id="diniGunIsmi">Aranıyor...</div>
+                    <div class="dinigun-sayac"><span id="diniGunKalan">--</span><small>GÜN KALDI</small></div>
+                </div>
+
+                <div class="icerik-baslik">Vakte Özel İçerikler (<span id="icerikVakitIsmi">--</span>)</div>
+                <div class="kutu kutu-ayet">
+                    <h3>📖 Kuran-ı Kerim'den Ayet</h3>
+                    <div class="arapca-metin" id="ayetAr">Yükleniyor...</div>
+                    <div class="turkce-metin" id="ayetTr">Yükleniyor...</div>
+                    <div class="kaynak-metin" id="ayetKaynak"></div>
+                </div>
+                <div class="kutu kutu-hadis">
+                    <h3>💬 Hadis-i Şerif</h3>
+                    <div class="turkce-metin" id="hadisTr">Yükleniyor...</div>
+                    <div class="kaynak-metin" id="hadisKaynak"></div>
+                </div>
+                <div class="kutu kutu-hikaye">
+                    <h3>📜 Kısa Bir Kıssa</h3>
+                    <div class="hikaye-metin" id="hikayeTr">Yükleniyor...</div>
+                    <div class="kaynak-metin" id="hikayeKaynak"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="bolumIbadet" class="icerik">
+            <h2>Günlük İbadet Takipçisi</h2>
+            <p class="durum-bilgisi" style="margin-bottom: 15px;">İşaretlediğiniz ibadetler cihazınıza kaydedilir.</p>
+            
+            <div class="istatistik-kutu" style="margin-bottom: 20px;" onclick="modalGoster('ibadetGecmis')">
+                <span>Aylık Başarım (Tıkla ve Gör):</span>
+                <span id="aylikOran">Hesaplanıyor...</span>
+            </div>
+
+            <div class="takip-karti">
+                <div class="takip-baslik">🕋 Günlük Farz Namazlar</div>
+                <ul class="ibadet-liste">
+                    <li class="ibadet-item"><input type="checkbox" id="chkSabah" class="ibadet-chk"> <label for="chkSabah">Sabah Namazı</label></li>
+                    <li class="ibadet-item"><input type="checkbox" id="chkOgle" class="ibadet-chk"> <label for="chkOgle">Öğle Namazı</label></li>
+                    <li class="ibadet-item"><input type="checkbox" id="chkIkindi" class="ibadet-chk"> <label for="chkIkindi">İkindi Namazı</label></li>
+                    <li class="ibadet-item"><input type="checkbox" id="chkAksam" class="ibadet-chk"> <label for="chkAksam">Akşam Namazı</label></li>
+                    <li class="ibadet-item"><input type="checkbox" id="chkYatsi" class="ibadet-chk"> <label for="chkYatsi">Yatsı Namazı</label></li>
+                </ul>
+            </div>
+
+            <div class="takip-karti">
+                <div class="takip-baslik">📿 Ekstra İbadetler</div>
+                <ul class="ibadet-liste">
+                    <li class="ibadet-item"><input type="checkbox" id="chkTeheccud" class="ibadet-chk"> <label for="chkTeheccud">Teheccüd / Gece Namazı</label></li>
+                    <li class="ibadet-item"><input type="checkbox" id="chkKusluk" class="ibadet-chk"> <label for="chkKusluk">Duha (Kuşluk) Namazı</label></li>
+                    <li class="ibadet-item"><input type="checkbox" id="chkKuran" class="ibadet-chk"> <label for="chkKuran">Kur'an-ı Kerim Okudum</label></li>
+                    <li class="ibadet-item"><input type="checkbox" id="chkZikir" class="ibadet-chk"> <label for="chkZikir">Günlük Zikir / Tesbihat</label></li>
+                    <li class="ibadet-item"><input type="checkbox" id="chkSadaka" class="ibadet-chk"> <label for="chkSadaka">Sadaka veya İyilik Yaptım</label></li>
+                </ul>
+            </div>
+
+            <div class="takip-karti">
+                <div class="takip-baslik">✍️ Günün Notu (Kendine Mesaj)</div>
+                <textarea id="ibadetNotu" class="not-alani" placeholder="Bugün manevi olarak kendini nasıl hissettin? Buraya yaz..."></textarea>
+                <button class="btn" style="margin-top: 10px;" onclick="notuKaydet()">Notu Kaydet</button>
+            </div>
+        </div>
+
+        <div id="bolumSosyal" class="icerik">
+            <h2>Topluluk Paneli</h2>
+            <p class="durum-bilgisi" style="margin-bottom: 15px;">Bu bölüm yakında açılacaktır.</p>
+
+            <div class="takip-karti">
+                <div class="takip-baslik">Ortak Hatim Test Alanı</div>
+                <div class="cuz-grid" id="cuzKonteyner"></div>
+            </div>
+        </div>
+
+        <div id="bolumYonetici" class="icerik">
+            <h2 style="color: #ff4757;">Yönetici Paneli</h2>
+            <p class="durum-bilgisi" style="margin-bottom: 15px;">Uygulama hata kayıtları ve sistem durumu sadece sizin tarafınızdan görüntülenir.</p>
+            
+            <div class="takip-karti" style="border-color:#ff4757;">
+                <div class="takip-baslik" style="color:#ff4757; border-bottom-color:#ff4757;">Sistem Logları (Hata Kayıtları)</div>
+                <div id="adminLoglar">Log kaydı bekleniyor...</div>
+            </div>
+
+            <button class="btn btn-ikincil" style="margin-top: 15px; width: 100%; background: linear-gradient(45deg, #ff4757, #ff6b81); box-shadow: 0 5px 15px rgba(255, 71, 87, 0.3);" onclick="adminCikis()">Yöneticiden Çıkış Yap</button>
+        </div>
+
+        <div id="bolumImsakiye" class="icerik">
+            <h2>Aylık İmsakiye</h2>
+            <div class="imsakiye-konteyner" id="imsakiyeListesi">
+                <div class="yukleniyor-kutusu"><div class="spinner"></div>İmsakiye İndiriliyor...</div>
+            </div>
+        </div>
+
+        <div id="bolumKible" class="icerik">
+            <h2>Kıble Pusulası</h2>
+            <div class="pusula-uyari">Cihazınızı "8" çizecek şekilde hareket ettirerek kalibre ediniz ve yatay, düz bir zeminde tutunuz. Kılıftaki mıknatıslar sapmaya yol açabilir.</div>
+            <div id="kibleKurulum">
+                <button class="btn" style="background: linear-gradient(45deg, #2ed573, #1db954);" onclick="pusulayiBaslat()" id="pusulaBtn">Sensör İzni Ver ve Başlat</button>
+                <div id="pusulaHata" class="pusula-ios-hata"></div>
+            </div>
+            <div id="pusulaEkrani" style="display: none;">
+                <div class="pusula-container">
+                    <div class="telefon-yonu">▲</div>
+                    <div class="pusula-dis">
+                        <div class="pusula-cizgi"></div><div class="pusula-cizgi c1"></div><div class="pusula-cizgi c2"></div><div class="pusula-cizgi c3"></div>
+                        <div class="pusula-ic" id="pusulaDonen">
+                            <div class="yon-harf kuzey-ok">N</div><div class="yon-harf guney-ok">S</div><div class="yon-harf dogu-ok">E</div><div class="yon-harf bati-ok">W</div>
+                            <div class="kible-ok-konteyner" id="kibleOkKonteyner"><div class="kible-simgesi">🕋</div></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="yonTalimati" class="yon-talimati">Bekleniyor...</div>
+                <div class="durum-bilgisi" id="kibleAciBilgisi"></div>
+            </div>
+        </div>
+
+        <div id="bolumAlarm" class="icerik">
+            <h2>Ezan Alarmları</h2>
+            <div class="alarm-form">
+                <div class="form-grup">
+                    <label>Hangi Vakit İçin?</label>
+                    <select id="alarmVakitSec">
+                        <option value="İmsak">İmsak</option>
+                        <option value="Güneş">Güneş</option>
+                        <option value="Öğle">Öğle</option>
+                        <option value="İkindi">İkindi</option>
+                        <option value="Akşam">Akşam</option>
+                        <option value="Yatsı">Yatsı</option>
+                    </select>
+                </div>
+                <div class="form-grup">
+                    <label>Ne Zaman Çalsın?</label>
+                    <select id="alarmDakikaSec">
+                        <option value="0">Tam Vaktinde</option>
+                        <option value="5">5 Dakika Önce</option>
+                        <option value="15">15 Dakika Önce</option>
+                        <option value="45">45 Dakika Önce</option>
+                    </select>
+                </div>
+                <div class="form-grup">
+                    <label>Tekrar Durumu</label>
+                    <select id="alarmTekrarSec"><option value="hergun">Her Gün Tekrarla</option><option value="tek">Sadece Bugün</option></select>
+                </div>
+                <div class="form-grup">
+                    <label>Alarm Sesi</label>
+                    <select id="alarmSesSec">
+                        <option value="saba">Ezan (Sabâ Makamı - Sabah)</option>
+                        <option value="ussak">Ezan (Uşşak Makamı - Öğle)</option>
+                        <option value="hicaz">Ezan (Hicaz Makamı - İkindi)</option>
+                        <option value="segah">Ezan (Segâh Makamı - Akşam)</option>
+                        <option value="huseyni">Ezan (Hüseynî Makamı - Yatsı)</option>
+                    </select>
+                </div>
+                <div class="buton-grubu">
+                    <button id="btnAlarmTest" class="btn btn-ikincil" onclick="alarmTest()">Sesi Test Et</button>
+                    <button class="btn" onclick="alarmEkle()">Alarmı Kur</button>
+                </div>
+            </div>
+            <div class="aktif-alarmlar">
+                <h3 style="color:#4facfe; font-size:1.1rem; border-bottom:1px solid #334155; padding-bottom:5px;">Kurulu Alarmlar</h3>
+                <div id="alarmListesiKonteyner"><p style="color:#94a3b8; font-size:0.9rem;">Henüz bir alarm kurmadınız.</p></div>
+            </div>
+        </div>
+
+        <div id="bolumAyarlar" class="icerik">
+            <h2>Uygulama Ayarları</h2>
+
+            <div class="ayar-satir">
+                <div class="ayar-bilgi">
+                    <h4>Arka Plan Görseli</h4>
+                    <p>Uygulamanın arka planında görünmesini istediğiniz fotoğrafı seçin.</p>
+                    <select id="arkaplanSecim" style="width:100%; padding:10px; border-radius:5px; margin-top:10px; background:#0b0f19; color:white; border:1px solid #4facfe;" onchange="arkaplanDegistir()">
+                        <option value="cami1">Cami Manzarası 1</option>
+                        <option value="cami2">Cami Manzarası 2</option>
+                        <option value="cami3">Cami Manzarası 3</option>
+                        <option value="cami4">Cami Manzarası 4</option>
+                        <option value="kabe1">Kabe Manzarası 1</option>
+                        <option value="kabe2">Kabe Manzarası 2</option>
+                        <option value="manzara1">Manzara 1</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="ayar-satir">
+                <div class="ayar-bilgi">
+                    <h4>Konum Ayarları</h4>
+                    <p>Otomatik konum bulmada sorun yaşıyorsanız şehrinizi listeden seçin.</p>
+                    <select id="manuelSehir" style="width:100%; padding:10px; border-radius:5px; margin-top:10px; background:#0b0f19; color:white; border:1px solid #4facfe;">
+                        <option value="37.0000,35.3213">Adana</option>
+                        <option value="39.9208,32.8541">Ankara</option>
+                        <option value="36.8969,30.7133">Antalya</option>
+                        <option value="40.1824,29.0671">Bursa</option>
+                        <option value="37.9144,40.2306">Diyarbakır</option>
+                        <option value="39.9043,41.2679">Erzurum</option>
+                        <option value="37.0662,37.3833">Gaziantep</option>
+                        <option value="41.0082,28.9784" selected>İstanbul</option>
+                        <option value="38.4237,27.1428">İzmir</option>
+                        <option value="38.7205,35.4826">Kayseri</option>
+                        <option value="37.8746,32.4932">Konya</option>
+                        <option value="41.0027,39.7168">Trabzon</option>
+                    </select>
+                    <div style="display:flex; gap:10px; margin-top:10px;">
+                        <button class="btn" style="padding: 8px;" onclick="manuelKonumUygula()">Seçilen Şehri Uygula</button>
+                        <button class="btn btn-ikincil" style="padding: 8px;" onclick="uygulamayiBaslat()">GPS Otomatik Bul</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ayar-satir">
+                <div class="ayar-bilgi">
+                    <h4>Cami Modu</h4>
+                    <p>Ezan vaktinde telefonu otomatik sessize alır.</p>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="ayarCamiModu">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="ayar-satir admin-kutu">
+                <div class="ayar-bilgi">
+                    <h4 style="color:#ff4757;">Yönetici Girişi</h4>
+                    <input type="password" id="adminSifre" style="width:100%; padding:8px; border-radius:5px; margin-top:5px; background:#0b0f19; color:white; border:1px solid #ff4757;" placeholder="Şifre">
+                    <button class="btn" style="padding: 8px; margin-top: 10px; background: linear-gradient(45deg, #ff4757, #ff6b81);" onclick="adminGiris()">Giriş Yap</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="genelModal" class="modal-overlay">
+        <div class="modal-icerik">
+            <span class="modal-kapat" onclick="modalKapat()">&times;</span>
+            <h3 class="modal-baslik" id="modalBaslik">Başlık</h3>
+            <div class="modal-metin" id="modalDetay">Detaylar...</div>
+            <a id="modalLink" href="#" target="_blank" class="modal-btn" style="display:none;">Daha Fazla Bilgi</a>
+        </div>
+    </div>
+
+    <script>
+        // TEMEL DEĞİŞKENLER
+        let kullaniciEnlem = 41.0082; let kullaniciBoylam = 28.9784; // Varsayılan: İstanbul
+        let konumBulundu = false; let adminYetkisi = false;
+        let gunlukVakitler = []; let imsakiyeVerileri = []; let siradakiDiniGunObjesi = null; let aktifAlarmlar = [];
+        let logKayitlari = [];
+
+        // Yeni: Test Seslerini Durdurmak İçin Kontrol Değişkenleri
+        let aktifTestSesi = null;
+        let bipZamanlayicilar = [];
+
+        const hicriAylarTr = ["", "Muharrem", "Safer", "Rebiülevvel", "Rebiülahir", "Cemaziyelevvel", "Cemaziyelahir", "Recep", "Şaban", "Ramazan", "Şevval", "Zilkade", "Zilhicce"];
+
+        const ezanSesDosyalari = {
+            'saba': './assets/sounds/sabah-saba-mustafaalphayta.mp3',
+            'ussak': './assets/sounds/ogle-ussak-nurettinokumus.mp3',
+            'hicaz': './assets/sounds/yatsi-hicaz-nurettinokumus.mp3',
+            'segah': './assets/sounds/aksam-segah-ismailcosar.mp3',
+            'huseyni': './assets/sounds/ikindi-rast-ismailcosar.mp3'
+        };
+
+        const menuBar = document.querySelector('.menu-bar');
+        menuBar.addEventListener('wheel', function(e) {
+            if (e.deltaY !== 0) {
+                e.preventDefault();
+                this.scrollLeft += e.deltaY;
+            }
+        });
+
+        function logEkle(mesaj) {
+            const saat = new Date().toLocaleTimeString();
+            logKayitlari.push(`[${saat}] ${mesaj}`);
+            const logEkrani = document.getElementById('adminLoglar');
+            if(logEkrani) {
+                logEkrani.innerHTML = logKayitlari.join("<br>");
+                logEkrani.scrollTop = logEkrani.scrollHeight;
+            }
+            console.log(`[LOG] ${mesaj}`);
+        }
+
+        function toastGoster(mesaj) {
+            let t = document.getElementById("toastMesaj");
+            t.innerText = mesaj;
+            t.className = "goster";
+            setTimeout(function(){ t.className = t.className.replace("goster", ""); }, 3500);
+        }
+
+        function arkaplanDegistir() {
+            const secim = document.getElementById("arkaplanSecim").value;
+            document.body.style.backgroundImage = `linear-gradient(rgba(11, 15, 25, 0.88), rgba(11, 15, 25, 0.88)), url('./assets/images/${secim}.jpg')`;
+            localStorage.setItem("seciliArkaplan", secim);
+            toastGoster("Arka plan değiştirildi!");
+        }
+
+        function arkaplanYukle() {
+            const kayitli = localStorage.getItem("seciliArkaplan") || "cami1";
+            const secimKutusu = document.getElementById("arkaplanSecim");
+            if (secimKutusu) {
+                secimKutusu.value = kayitli;
+            }
+            document.body.style.backgroundImage = `linear-gradient(rgba(11, 15, 25, 0.88), rgba(11, 15, 25, 0.88)), url('./assets/images/${kayitli}.jpg')`;
+        }
+
+        function widgetGuncelle() {
+            const bugun = new Date();
+            const format = (n) => String(n).padStart(2, '0');
+            document.getElementById('widgetSaat').innerText = `${format(bugun.getHours())}:${format(bugun.getMinutes())}:${format(bugun.getSeconds())}`;
+            document.getElementById('widgetMiladi').innerText = "Miladi: " + bugun.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' });
+        }
+        setInterval(widgetGuncelle, 1000); widgetGuncelle();
+
+        function konumVarsayilanYap(hataMesaji) {
+            kullaniciEnlem = 41.0082; kullaniciBoylam = 28.9784; 
+            konumBulundu = false;
+            document.getElementById('widgetKonum').innerText = "İSTANBUL (Varsayılan)"; 
+            document.getElementById('anaKonumKarti').style.display = "flex";
+            document.getElementById('anaKonumMetni').innerText = "Konum Bulunamadı - İSTANBUL (Varsayılan)";
+            logEkle(hataMesaji);
+            veriGetirZinciri(); 
+        }
+
+        function uygulamayiBaslat() {
+            arkaplanYukle(); 
+            logEkle("Uygulama başlatıldı. Konum aranıyor...");
+            
+            // MOBİL ÇÖKME ENGELİ: Notification izni sadece kullanıcı butona basınca istenecek.
+            
+            if ("geolocation" in navigator && window.location.protocol === "https:") {
+                navigator.geolocation.getCurrentPosition(
+                    (p) => { 
+                        kullaniciEnlem = p.coords.latitude; kullaniciBoylam = p.coords.longitude; 
+                        konumBulundu = true; 
+                        document.getElementById('anaKonumKarti').style.display = "flex";
+                        document.getElementById('anaKonumMetni').innerText = "Mevcut Konumunuz";
+                        logEkle(`Konum başarılı: ${kullaniciEnlem.toFixed(4)}, ${kullaniciBoylam.toFixed(4)}`);
+                        veriGetirZinciri(); 
+                    },
+                    (e) => { konumVarsayilanYap(`Konum İzni Yok (Kod: ${e.code})`); },
+                    { timeout: 5000 }
+                );
+            } else { 
+                konumVarsayilanYap("Tarayıcı güvensiz veya Konum desteklemiyor.");
+            }
+            
+            ibadetTakipYukle();
+            cuzListesiniOlustur();
+        }
+
+        function manuelKonumUygula() {
+            const secim = document.getElementById("manuelSehir");
+            const sehirAdi = secim.options[secim.selectedIndex].text;
+            const koordinatlar = secim.value.split(',');
+            
+            kullaniciEnlem = parseFloat(koordinatlar[0]);
+            kullaniciBoylam = parseFloat(koordinatlar[1]);
+            konumBulundu = true;
+            
+            document.getElementById('widgetKonum').innerText = sehirAdi.toUpperCase();
+            document.getElementById('anaKonumKarti').style.display = "flex";
+            document.getElementById('anaKonumMetni').innerText = sehirAdi.toUpperCase();
+            
+            toastGoster("Konum " + sehirAdi + " olarak güncellendi!");
+            logEkle(`Şehir listesinden manuel seçim yapıldı: ${sehirAdi}`);
+            
+            veriGetirZinciri(); 
+        }
+
+        async function veriGetirZinciri() { await havaDurumuGetir(); await vakitleriGetirAladhan(); hesaplaDiniGunler(); }
+
+        async function havaDurumuGetir() {
+            try {
+                const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${kullaniciEnlem}&longitude=${kullaniciBoylam}&current_weather=true`);
+                const data = await res.json();
+                if(data && data.current_weather) {
+                    const temp = Math.round(data.current_weather.temperature); const code = data.current_weather.weathercode;
+                    let icon = code === 0 ? "☀️" : code <= 3 ? "⛅" : code <= 65 ? "🌧️" : code <= 75 ? "❄️" : "⛈️";
+                    document.getElementById('widgetHava').innerHTML = `${icon} ${temp}°C`;
+                    if(konumBulundu && document.getElementById('widgetKonum').innerText.includes("Aranıyor")) {
+                        document.getElementById('widgetKonum').innerText = "Mevcut Konumunuz";
+                    }
+                }
+            } catch(e) { document.getElementById('widgetHava').innerText = "Hava Alınamadı"; logEkle("Hava durumu çekilemedi."); }
+        }
+
+        async function vakitleriGetirAladhan() {
+            try {
+                const bugun = new Date();
+                const res = await fetch(`https://api.aladhan.com/v1/calendar/${bugun.getFullYear()}/${bugun.getMonth() + 1}?latitude=${kullaniciEnlem}&longitude=${kullaniciBoylam}&method=13`);
+                const veri = await res.json();
+                if(veri && veri.code === 200) {
+                    imsakiyeVerileri = veri.data;
+                    const bGun = imsakiyeVerileri[bugun.getDate() - 1];
+                    const timings = bGun.timings;
+                    
+                    const mNo = bGun.date.hijri.month.number;
+                    const hAy = hicriAylarTr[mNo] || bGun.date.hijri.month.en; 
+                    document.getElementById('widgetHicri').innerText = `${bGun.date.hijri.day} ${hAy} ${bGun.date.hijri.year} (Hicri)`;
+
+                    const t = (s) => s.split(" ")[0];
+                    gunlukVakitler = [
+                        { id: "imsak", isim: "İmsak", saat: t(timings.Imsak) }, { id: "gunes", isim: "Güneş", saat: t(timings.Sunrise) },
+                        { id: "ogle", isim: "Öğle", saat: t(timings.Dhuhr) }, { id: "ikindi", isim: "İkindi", saat: t(timings.Asr) },
+                        { id: "aksam", isim: "Akşam", saat: t(timings.Maghrib) }, { id: "yatsi", isim: "Yatsı", saat: t(timings.Isha) }
+                    ];
+                    vakitListesiniOlustur(); imsakiyeTablosunuOlustur(bugun.getDate() - 1); ezanSayaciGuncelle();
+                    logEkle("Vakitler API'den başarıyla çekildi.");
+                }
+            } catch (e) { logEkle(`API Hatası: ${e}`); document.getElementById('imsakiyeListesi').innerHTML = "<div class='pusula-ios-hata' style='display:block;'>Bağlantı hatası: Vakitler indirilemedi.</div>"; }
+        }
+
+        function vakitListesiniOlustur() {
+            const l = document.getElementById("vakitListesi"); l.innerHTML = "";
+            gunlukVakitler.forEach(v => {
+                l.innerHTML += `<li class="vakit-item" id="vakit-${v.id}"><span class="vakit-isim">${v.isim}</span><span class="vakit-saat">${v.saat}</span><button class="vakit-alarm-btn" onclick="hizliAlarmAc('${v.isim}')">🔔</button></li>`;
+            });
+        }
+        function hizliAlarmAc(v) { sekmeDegistir('alarm'); document.getElementById('alarmVakitSec').value = v; }
+
+        const AYLAR_TR = { "Jan":"Oca", "Feb":"Şub", "Mar":"Mar", "Apr":"Nis", "May":"May", "Jun":"Haz", "Jul":"Tem", "Aug":"Ağu", "Sep":"Eyl", "Oct":"Eki", "Nov":"Kas", "Dec":"Ara" };
+        function imsakiyeTablosunuOlustur(bugunIndex) {
+            const k = document.getElementById("imsakiyeListesi"); k.innerHTML = "";
+            for(let i = 0; i < imsakiyeVerileri.length; i++) {
+                if (i < bugunIndex - 1) continue; 
+                if (i > bugunIndex + 10) continue; 
+
+                const gun = imsakiyeVerileri[i]; const isBugun = (i === bugunIndex); const t = gun.timings; const tmz = (s) => s.split(" ")[0];
+                let p = gun.date.readable.split(' '); let mTR = `${p[0]} ${AYLAR_TR[p[1]] || p[1]} ${p[2]}`;
+                let baslik = mTR + (isBugun ? " (Bugün)" : i < bugunIndex ? " (Dün)" : "");
+                
+                let hAyTablo = hicriAylarTr[gun.date.hijri.month.number] || gun.date.hijri.month.en;
+                
+                const div = document.createElement("div"); div.className = `imsakiye-kart ${isBugun ? 'bugun' : i < bugunIndex ? 'gecmis' : ''}`;
+                div.innerHTML = `<div class="imsakiye-baslik"><span class="imsakiye-tarih">${baslik}</span><span class="imsakiye-hicri">${gun.date.hijri.day} ${hAyTablo}</span></div>
+                <div class="imsakiye-vakitler"><div class="ims-v"><span class="ims-isim">İmsak</span><span class="ims-saat">${tmz(t.Imsak)}</span></div><div class="ims-v"><span class="ims-isim">Güneş</span><span class="ims-saat">${tmz(t.Sunrise)}</span></div><div class="ims-v"><span class="ims-isim">Öğle</span><span class="ims-saat">${tmz(t.Dhuhr)}</span></div><div class="ims-v"><span class="ims-isim">İkindi</span><span class="ims-saat">${tmz(t.Asr)}</span></div><div class="ims-v"><span class="ims-isim">Akşam</span><span class="ims-saat">${tmz(t.Maghrib)}</span></div><div class="ims-v"><span class="ims-isim">Yatsı</span><span class="ims-saat">${tmz(t.Isha)}</span></div></div>`;
+                k.appendChild(div); if(isBugun) setTimeout(() => div.scrollIntoView({ behavior: 'smooth', block: 'center' }), 500);
+            }
+        }
+
+        function getBugunKey() {
+            let b = new Date();
+            return `ibadet_${b.getFullYear()}_${b.getMonth()+1}_${b.getDate()}`;
+        }
+
+        function ibadetTakipYukle() {
+            let key = getBugunKey();
+            let ibadetData = JSON.parse(localStorage.getItem(key) || '{}');
+            
+            const checkboxlar = document.querySelectorAll('.ibadet-chk');
+            checkboxlar.forEach(chk => {
+                chk.checked = !!ibadetData[chk.id];
+                chk.addEventListener('change', (e) => {
+                    ibadetData[chk.id] = e.target.checked;
+                    localStorage.setItem(key, JSON.stringify(ibadetData));
+                    hesaplaAylikBasarim();
+                });
+            });
+            
+            document.getElementById('ibadetNotu').value = ibadetData.not || "";
+            hesaplaAylikBasarim();
+        }
+
+        function notuKaydet() {
+            let key = getBugunKey();
+            let ibadetData = JSON.parse(localStorage.getItem(key) || '{}');
+            ibadetData.not = document.getElementById('ibadetNotu').value;
+            localStorage.setItem(key, JSON.stringify(ibadetData));
+            toastGoster("Notunuz günlüğe eklendi!");
+        }
+
+        function hesaplaAylikBasarim() {
+            let b = new Date();
+            let ayPrefix = `ibadet_${b.getFullYear()}_${b.getMonth()+1}_`;
+            let kayitliGunSayisi = 0;
+            let toplamKilinmasiGereken = 0;
+            let kilinanFarzlar = 0;
+            let namazlar = ['chkSabah', 'chkOgle', 'chkIkindi', 'chkAksam', 'chkYatsi'];
+
+            for (let i = 0; i < localStorage.length; i++) {
+                let k = localStorage.key(i);
+                if (k.startsWith(ayPrefix)) {
+                    kayitliGunSayisi++;
+                    toplamKilinmasiGereken += 5; 
+                    let gunData = JSON.parse(localStorage.getItem(k));
+                    kilinanFarzlar += namazlar.filter(id => gunData[id]).length;
+                }
+            }
+
+            let yuzde = toplamKilinmasiGereken > 0 ? Math.round((kilinanFarzlar / toplamKilinmasiGereken) * 100) : 0;
+            document.getElementById('aylikOran').innerText = `%${yuzde}`;
+        }
+
+        function adminGiris() {
+            let sifreAlan = document.getElementById('adminSifre');
+            if(sifreAlan.value === 'admin') { 
+                adminYetkisi = true;
+                sifreAlan.value = ""; 
+                document.getElementById('btnYonetici').style.display = 'inline-block'; 
+                toastGoster("Yönetici Yetkisi Verildi.");
+                sekmeDegistir('yonetici');
+            } else {
+                toastGoster("Hatalı Şifre!");
+            }
+        }
+        
+        function adminCikis() {
+            adminYetkisi = false;
+            document.getElementById('btnYonetici').style.display = 'none'; 
+            toastGoster("Yönetici hesabından başarıyla çıkış yapıldı.");
+            sekmeDegistir('ayarlar');
+        }
+
+        function cuzListesiniOlustur() {
+            const k = document.getElementById('cuzKonteyner');
+            const alinanlar = [1, 2, 3, 4, 5, 10, 15, 29, 30]; 
+            for(let i=1; i<=30; i++) {
+                const div = document.createElement('div');
+                div.className = `cuz-kutu ${alinanlar.includes(i) ? 'alindi' : ''}`;
+                div.innerText = `${i}. Cüz`;
+                div.onclick = function() {
+                    if(this.classList.contains('alindi')) alert("Bu cüz alınmış.");
+                    else if(confirm(`${i}. Cüz'ü almak istiyor musunuz?`)) this.classList.add('alindi');
+                };
+                k.appendChild(div);
+            }
+        }
+
+        // TARİH FORMATI HATASI DÜZELTİLDİ: "T00:00:00" eklenerek iOS/Safari uyumlu hale getirildi.
+        const diniGunlerKulliyati = [
+            { ad: "Regaip Kandili", tarih: "2025-01-02T00:00:00", detay: "Üç ayların başlangıcını müjdeleyen, Allah'ın rahmetinin bol bol ihsan edildiği mübarek gecedir.", link: "https://tr.wikipedia.org/wiki/Regaip_Kandili" },
+            { ad: "Miraç Kandili", tarih: "2025-01-26T00:00:00", detay: "Peygamber Efendimiz'in (s.a.s) Mescid-i Haram'dan Mescid-i Aksa'ya, oradan da semaya yükseltildiği gecedir.", link: "https://tr.wikipedia.org/wiki/Mira%C3%A7" },
+            { ad: "Berat Kandili", tarih: "2025-02-13T00:00:00", detay: "Allah'ın affı ve bağışlamasının çokça olduğu, kaderlerin yazıldığı kurtuluş gecesidir.", link: "https://tr.wikipedia.org/wiki/Berat_Kandili" },
+            { ad: "Ramazan Başlangıcı", tarih: "2025-02-28T00:00:00", detay: "On bir ayın sultanı, rahmet, mağfiret ve bereket ayı Ramazan-ı Şerif'in ilk günüdür.", link: "https://tr.wikipedia.org/wiki/Ramazan" },
+            { ad: "Kadir Gecesi", tarih: "2025-03-26T00:00:00", detay: "Kur'an-ı Kerim'in indirilmeye başlandığı, bin aydan daha hayırlı olan mübarek gecedir.", link: "https://tr.wikipedia.org/wiki/Kadir_Gecesi" },
+            { ad: "Aşure Günü", tarih: "2026-07-25T00:00:00", detay: "Muharrem ayının 10. günüdür. Tarihte pek çok peygamberin hayatında önemli hadiselerin gerçekleştiği, bereketli ve duaların kabul olduğu gündür.", link: "https://tr.wikipedia.org/wiki/A%C5%9Fure_G%C3%BCn%C3%BC" }
+        ];
+
+        function hesaplaDiniGunler() { 
+            const bugun = new Date(); bugun.setHours(0,0,0,0); 
+            const siradaki = diniGunlerKulliyati.find(g => new Date(g.tarih) >= bugun); 
+            if (siradaki) { 
+                siradakiDiniGunObjesi = siradaki; 
+                document.getElementById('diniGunIsmi').innerText = siradaki.ad; 
+                const kalan = Math.ceil((new Date(siradaki.tarih) - bugun) / (1000 * 60 * 60 * 24)); 
+                document.getElementById('diniGunKalan').innerText = kalan === 0 ? "BUGÜN" : kalan; 
+            } else {
+                document.getElementById('diniGunKutusu').style.display = "none"; 
+            }
+        }
+
+        function modalGoster(tur) { 
+            const m = document.getElementById('genelModal');
+            const baslik = document.getElementById('modalBaslik');
+            const detay = document.getElementById('modalDetay');
+            const link = document.getElementById('modalLink');
+            
+            if(tur === 'diniGun' && siradakiDiniGunObjesi) {
+                baslik.innerText = siradakiDiniGunObjesi.ad; 
+                detay.innerText = siradakiDiniGunObjesi.detay; 
+                link.href = siradakiDiniGunObjesi.link;
+                link.style.display = "inline-block";
+            } 
+            else if (tur === 'ibadetGecmis') {
+                baslik.innerText = "İbadet Geçmişi (Bu Ay)";
+                link.style.display = "none";
+                detay.innerHTML = "";
+                
+                let b = new Date();
+                let ayPrefix = `ibadet_${b.getFullYear()}_${b.getMonth()+1}_`;
+                let kayitBulundu = false;
+
+                let gunler = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    if (localStorage.key(i).startsWith(ayPrefix)) gunler.push(localStorage.key(i));
+                }
+                gunler.sort().reverse(); 
+
+                gunler.forEach(k => {
+                    let gunData = JSON.parse(localStorage.getItem(k));
+                    let d = k.split('_'); let tarihStr = `${d[3]}.${d[2]}.${d[1]}`;
+                    
+                    let yapilanlar = [];
+                    if(gunData.chkSabah) yapilanlar.push("Sabah"); if(gunData.chkOgle) yapilanlar.push("Öğle");
+                    if(gunData.chkIkindi) yapilanlar.push("İkindi"); if(gunData.chkAksam) yapilanlar.push("Akşam");
+                    if(gunData.chkYatsi) yapilanlar.push("Yatsı");
+                    
+                    if(yapilanlar.length > 0 || gunData.not) {
+                        kayitBulundu = true;
+                        let html = `<div class="gecmis-gun-karti">
+                            <div class="gecmis-gun-tarih">${tarihStr}</div>
+                            <div class="gecmis-gun-detay"><b>Namazlar:</b> ${yapilanlar.length > 0 ? yapilanlar.join(', ') : 'Kılınmadı'}</div>`;
+                        if(gunData.not) html += `<div class="gecmis-gun-detay" style="margin-top:5px; font-style:italic;"><b>Not:</b> "${gunData.not}"</div>`;
+                        html += `</div>`;
+                        detay.innerHTML += html;
+                    }
+                });
+
+                if(!kayitBulundu) detay.innerHTML = "<p>Henüz geçmişe dönük kayıtlı ibadetiniz bulunmamaktadır.</p>";
+            }
+            m.style.display = "flex"; 
+        }
+
+        function modalKapat() { document.getElementById('genelModal').style.display = "none"; }
+
+        const islamiIcerikler = {
+            imsak: { ayetAr: "وَقُرْآنَ الْفَجْرِ ۖ إِنَّ قُرْآنَ الْفَجْرِ كَانَ مَشْهُودًا", ayetTr: "...Sabah namazını da kıl. Çünkü sabah namazı şahitlidir.", ayetKaynak: "İsra Suresi, 78. Ayet", hadisTr: "Kim sabah namazını kılarsa o, Allah'ın güvencesi altındadır.", hadisKaynak: "Müslim, Mesâcid 261", hikayeTr: "Hz. Ömer sabah namazında cemaatte göremediği gencin annesine gider...", hikayeKaynak: "Muvatta, Cemaat 7" },
+            gunes: { ayetAr: "وَسَبِّحْ بِحَمْدِ رَبِّكَ قَبْلَ طُلُوعِ الشَّمْسِ وَقَبْلَ غُرُوبِهَا", ayetTr: "...Güneş doğmadan ve batmadan önce Rabbini tesbih et.", ayetKaynak: "Taha Suresi, 130. Ayet", hadisTr: "Sabahı cemaatle kılıp güneş doğana dek zikreden tam hac sevabı alır.", hadisKaynak: "Tirmizî, Cuma 59", hikayeTr: "Peygamber Efendimiz (s.a.v) sabah namazından sonra oturur zikrederdi.", hikayeKaynak: "Müslim, Mesâcid 286" },
+            ogle: { ayetAr: "حَافِظُوا عَلَى الصَّلَوَاتِ وَالصَّلَاةِ الْوُسْطَىٰ", ayetTr: "Namazlara ve orta namaza devam edin.", ayetKaynak: "Bakara Suresi, 238. Ayet", hadisTr: "Güzelce kılınan farz namaz, önceki günahlarına keffâret olur.", hadisKaynak: "Müslim, Tahâret 7", hikayeTr: "Hz. Bilal öğle ezanını okuduğunda Efendimiz 'Bizi ferahlat' derdi.", hikayeKaynak: "Ebu Davud, Edeb 78" },
+            ikindi: { ayetAr: "وَالْعَصْرِ ۙ إِنَّ الْإِنْسَانَ لَفِي خُسْرٍ", ayetTr: "Asra yemin olsun ki, insan gerçekten ziyan içindedir.", ayetKaynak: "Asr Suresi, 1-2. Ayet", hadisTr: "İkindi namazını terk edenin amelleri boşa gider.", hadisKaynak: "Buhârî, Mevâkît 15", hikayeTr: "Sahabeler ticaret pazarında bile ezanı duyduklarında işi bırakırlardı.", hikayeKaynak: "Tarihi Kaynaklar" },
+            aksam: { ayetAr: "فَسُبْحَانَ اللَّهِ حِينَ تُمْسُونَ وَحِينَ تُصْبِحُونَ", ayetTr: "Akşama ulaştığınızda da, sabaha kavuştuğunuzda da Allah'ı tesbih edin.", ayetKaynak: "Rum Suresi, 17. Ayet", hadisTr: "Akşama ulaştığında dua eden, belalardan korunur.", hadisKaynak: "Müslim, Zikir 75", hikayeTr: "Hz. Peygamber akşam olunca evine girer, ailesiyle bir araya gelirdi.", hikayeKaynak: "Tirmizi" },
+            yatsi: { ayetAr: "وَمِنَ اللَّيْلِ فَاسْجُدْ لَهُ وَسَبِّحْهُ لَيْلًا طَوِيلًا", ayetTr: "Gecenin bir kısmında secde et; uzun bir bölümünde tesbih et.", ayetKaynak: "İnsan Suresi, 26. Ayet", hadisTr: "Yatsıyı cemaatle kılan, gecenin yarısını namazla geçirmiş gibidir.", hadisKaynak: "Müslim, Mesâcid 260", hikayeTr: "İmam Azam'ın yatsı abdestiyle 40 yıl sabah namazı kıldığı rivayet edilir.", hikayeKaynak: "Tezkiretül Evliya" }
+        };
+
+        let aktifIcerikId = "";
+        function ezanSayaciGuncelle() {
+            if(gunlukVakitler.length === 0) return;
+            const simdi = new Date(); const mevcutDk = (simdi.getHours() * 60) + simdi.getMinutes() + (simdi.getSeconds() / 60);
+            let siradakiVakit = null; let suankiVakit = null;
+            for (let i = 0; i < gunlukVakitler.length; i++) {
+                let [s, d] = gunlukVakitler[i].saat.split(':').map(Number);
+                if ((s * 60) + d > mevcutDk) { siradakiVakit = gunlukVakitler[i]; suankiVakit = i > 0 ? gunlukVakitler[i - 1] : gunlukVakitler[5]; break; }
+            }
+            if (!siradakiVakit) { siradakiVakit = gunlukVakitler[0]; suankiVakit = gunlukVakitler[5]; }
+
+            let [sS, sD] = siradakiVakit.saat.split(':').map(Number);
+            let hdf = new Date(simdi); hdf.setHours(sS, sD, 0, 0);
+            if (!siradakiVakit || (sS < simdi.getHours())) hdf.setDate(hdf.getDate() + 1);
+
+            let fk = hdf - simdi;
+            document.getElementById("suankiVakitMetni").innerText = suankiVakit.isim;
+            document.getElementById("kalanVakitMetni").innerHTML = `<b>${siradakiVakit.isim}</b> vaktine kalan süre`;
+            document.getElementById("ezanCanliSayac").innerText = `${String(Math.floor(fk / 3600000)).padStart(2,'0')}:${String(Math.floor((fk % 3600000)/60000)).padStart(2,'0')}:${String(Math.floor((fk % 60000)/1000)).padStart(2,'0')}`;
+            
+            document.querySelectorAll('.vakit-item').forEach(i => i.classList.remove('aktif-vakit'));
+            let sh = document.getElementById("vakit-" + suankiVakit.id); if(sh) sh.classList.add('aktif-vakit');
+
+            if (aktifIcerikId !== suankiVakit.id) {
+                aktifIcerikId = suankiVakit.id; const v = islamiIcerikler[suankiVakit.id];
+                document.getElementById('icerikVakitIsmi').innerText = suankiVakit.isim;
+                document.getElementById('ayetAr').innerText = v.ayetAr; document.getElementById('ayetTr').innerText = v.ayetTr; document.getElementById('ayetKaynak').innerText = v.ayetKaynak;
+                document.getElementById('hadisTr').innerText = v.hadisTr; document.getElementById('hadisKaynak').innerText = v.hadisKaynak;
+                document.getElementById('hikayeTr').innerText = v.hikayeTr; document.getElementById('hikayeKaynak').innerText = v.hikayeKaynak;
+            }
+        }
+        setInterval(ezanSayaciGuncelle, 1000);
+
+        function sekmeDegistir(sekmeAdi) {
+            if (sekmeAdi === 'sosyal' && !adminYetkisi) {
+                toastGoster("Topluluk menüsü şu an bakım aşamasındadır. Yalnızca yöneticiler erişebilir.");
+                return;
+            }
+
+            document.querySelectorAll('.icerik, .sekme-btn').forEach(el => el.classList.remove('aktif'));
+            const s = { 'ezan': { d: 'bolumEzan', b: 'btnEzan' }, 'ibadet': { d: 'bolumIbadet', b: 'btnIbadet' }, 'sosyal': { d: 'bolumSosyal', b: 'btnSosyal' }, 'yonetici': { d: 'bolumYonetici', b: 'btnYonetici' }, 'imsakiye': { d: 'bolumImsakiye', b: 'btnImsakiye' }, 'kible': { d: 'bolumKible', b: 'btnKible' }, 'alarm': { d: 'bolumAlarm', b: 'btnAlarm' }, 'ayarlar': { d: 'bolumAyarlar', b: 'btnAyarlar' } };
+            if(s[sekmeAdi]) { document.getElementById(s[sekmeAdi].d).classList.add('aktif'); document.getElementById(s[sekmeAdi].b).classList.add('aktif'); }
+        }
+
+        // ALARM GÜNCELLEMESİ (Sesi Kapatma Mantığı Eklendi)
+        function sesDurdur() {
+            if (aktifTestSesi) {
+                if (aktifTestSesi.pause) { 
+                    aktifTestSesi.pause(); 
+                    aktifTestSesi.currentTime = 0; 
+                }
+                aktifTestSesi = null;
+            }
+            bipZamanlayicilar.forEach(clearTimeout);
+            bipZamanlayicilar = [];
+        }
+
+        function sesCal(tip, isTest = false) {
+            sesDurdur(); // Eğer önceden çalan varsa önce onu sustur
+            if(tip === 'bip') {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                osc.connect(ctx.destination);
+                osc.frequency.value = 800; osc.type = 'square';
+                osc.start(); 
+                
+                bipZamanlayicilar.push(setTimeout(() => osc.stop(), 200));
+                
+                bipZamanlayicilar.push(setTimeout(() => { 
+                    const o2 = ctx.createOscillator(); 
+                    o2.connect(ctx.destination); 
+                    o2.frequency.value = 800; o2.type='square'; 
+                    o2.start(); 
+                    bipZamanlayicilar.push(setTimeout(()=>o2.stop(), 200)); 
+                }, 300));
+
+                if (isTest) {
+                    bipZamanlayicilar.push(setTimeout(() => {
+                        const btn = document.getElementById("btnAlarmTest");
+                        if(btn && btn.innerText === "Testi Bitir") { alarmTestToggleReset(btn); }
+                    }, 1000));
+                }
+            } else {
+                const url = ezanSesDosyalari[tip];
+                if (url) {
+                    const audio = new Audio(url);
+                    if(isTest) aktifTestSesi = audio;
+                    
+                    audio.play().catch(e => {
+                        toastGoster("Tarayıcı sesi engelledi. Ekrana dokunun veya 'Bip' kullanın.");
+                        if(isTest) {
+                            const btn = document.getElementById("btnAlarmTest");
+                            if(btn) alarmTestToggleReset(btn);
+                        }
+                    });
+
+                    if(isTest) {
+                        audio.onended = function() {
+                            const btn = document.getElementById("btnAlarmTest");
+                            if(btn && btn.innerText === "Testi Bitir") { alarmTestToggleReset(btn); }
+                        };
+                    }
+                }
+            }
+        }
+
+        function alarmTestToggleReset(btn) {
+            btn.innerText = "Sesi Test Et";
+            btn.style.background = ""; 
+            btn.style.boxShadow = "";
+            sesDurdur();
+        }
+
+        function alarmTest() {
+            const btn = document.getElementById("btnAlarmTest");
+            let ses = document.getElementById('alarmSesSec').value;
+            
+            if (btn.innerText === "Sesi Test Et") {
+                btn.innerText = "Testi Bitir";
+                btn.style.background = "linear-gradient(45deg, #ff4757, #ff6b81)"; 
+                btn.style.boxShadow = "0 5px 15px rgba(255, 71, 87, 0.3)";
+                toastGoster("Test Sesi Çalınıyor...");
+                sesCal(ses, true);
+            } else {
+                alarmTestToggleReset(btn);
+            }
+        }
+
+        function alarmEkle() {
+            if(gunlukVakitler.length === 0) return toastGoster("Önce vakitlerin yüklenmesini bekleyin.");
+            
+            // Bildirim İzni Burada İstenecek (Mobilde Sorun Çıkarmaması İçin)
+            if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
+                Notification.requestPermission();
+            }
+
+            aktifAlarmlar.push({ id: Date.now().toString(), vIsim: document.getElementById('alarmVakitSec').value, dakOnce: parseInt(document.getElementById('alarmDakikaSec').value), tekrar: document.getElementById('alarmTekrarSec').value, ses: document.getElementById('alarmSesSec').value, calindiBugun: false });
+            alarmlariListele();
+            toastGoster("Alarm kuruldu!");
+        }
+        function alarmSil(id) { aktifAlarmlar = aktifAlarmlar.filter(a => a.id !== id); alarmlariListele(); }
+        function alarmlariListele() {
+            const l = document.getElementById('alarmListesiKonteyner'); if(aktifAlarmlar.length === 0) return l.innerHTML = '<p style="color:#94a3b8; font-size:0.9rem;">Henüz alarm yok.</p>';
+            l.innerHTML = ""; aktifAlarmlar.forEach(a => { l.innerHTML += `<div class="alarm-kutu"><div class="alarm-kutu-bilgi"><span class="alarm-vakit">🔔 ${a.vIsim}</span><span class="alarm-detay">${a.dakOnce===0?"Tam vaktinde":a.dakOnce+" dk. önce"} | ${a.tekrar==='hergun'?"Her Gün":"Tek Sefer"}</span></div><button class="alarm-sil" onclick="alarmSil('${a.id}')">✖</button></div>`; });
+        }
+        function alarmMotoru() {
+            if(gunlukVakitler.length===0 || aktifAlarmlar.length===0) return; const simdi = new Date();
+            aktifAlarmlar.forEach(a => {
+                const v = gunlukVakitler.find(x => x.isim === a.vIsim); if(!v) return;
+                let [s, d] = v.saat.split(':').map(Number); let h = new Date(simdi); h.setHours(s, d, 0, 0); h.setMinutes(h.getMinutes() - a.dakOnce);
+                if (simdi.getHours() === h.getHours() && simdi.getMinutes() === h.getMinutes()) {
+                    if (!a.calindiBugun) { 
+                        a.calindiBugun = true; 
+                        sesCal(a.ses, false);
+                        if("Notification" in window && Notification.permission==="granted") new Notification("Vakit Geldi", {body:`${a.vIsim} vaktine ${a.dakOnce} dk kaldı.`}); 
+                        else alert(`ALARM: ${a.vIsim} vaktine ${a.dakOnce===0?"girildi":a.dakOnce+" dk kaldı"}`); 
+                        if (a.tekrar === 'tek') setTimeout(() => alarmSil(a.id), 60000); 
+                    }
+                } else if (simdi.getHours() === 0 && simdi.getMinutes() === 1) a.calindiBugun = false;
+            });
+        } setInterval(alarmMotoru, 5000);
+
+        // PUSULA
+        async function pusulayiBaslat() { 
+            const hataKutu = document.getElementById("pusulaHata");
+            hataKutu.style.display = "none"; 
+            
+            try {
+                if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    const permission = await DeviceOrientationEvent.requestPermission();
+                    if (permission === 'granted') {
+                        islemeBasla(kullaniciEnlem, kullaniciBoylam);
+                    } else {
+                        throw new Error("Kullanıcı sensör iznini reddetti.");
+                    }
+                } else {
+                    islemeBasla(kullaniciEnlem, kullaniciBoylam);
+                }
+            } catch (err) {
+                logEkle(`Pusula Hatası: ${err.message}`);
+                hataKutu.style.display = "block";
+                hataKutu.innerHTML = `<b>Hata Kodu:</b> ${err.message}<br>Tarayıcınız veya cihazınız pusulayı desteklemiyor. Güvenli (HTTPS) bağlantı kullandığınızdan emin olun.`;
+            }
+        }
+        
+        function islemeBasla(enlem, boylam) { 
+            let k = (Math.atan2(Math.sin((39.826206 - boylam) * Math.PI / 180.0), Math.cos(enlem * Math.PI / 180.0) * Math.tan(21.422487 * Math.PI / 180.0) - Math.sin(enlem * Math.PI / 180.0) * Math.cos((39.826206 - boylam) * Math.PI / 180.0)) * 180.0 / Math.PI + 360) % 360; 
+            document.getElementById('kibleOkKonteyner').style.transform = `translateX(-50%) rotate(${k}deg)`; 
+            document.getElementById('kibleKurulum').style.display = "none"; 
+            document.getElementById('pusulaEkrani').style.display = "block"; 
+            
+            if (window.DeviceOrientationAbsoluteEvent) window.addEventListener("deviceorientationabsolute", (e)=>{yonIsle(e,k)}); 
+            else if (window.DeviceOrientationEvent) window.addEventListener("deviceorientation", (e)=>{yonIsle(e,k)}); 
+        }
+        
+        function yonIsle(e, h) { 
+            let a = e.webkitCompassHeading || (360 - e.alpha); 
+            if(!a && a !== 0) return;
+            document.getElementById('pusulaDonen').style.transform = `rotate(${-a}deg)`; 
+            let f = ((h - a + 540) % 360) - 180; 
+            const t = document.getElementById('yonTalimati'); 
+            if (Math.abs(f) <= 7) { 
+                t.innerHTML = "🕋 KIBLE YÖNÜNDESİNİZ"; 
+                t.className = "yon-talimati kible-dogru"; 
+                if("vibrate" in navigator) navigator.vibrate(50);
+            } else { 
+                t.innerHTML = f > 0 ? "👉 Sağa Dön" : "👈 Sola Dön"; 
+                t.className = "yon-talimati"; 
+            } 
+        }
+
+        window.onload = uygulamayiBaslat;
+    </script>
+</body>
+</html>
